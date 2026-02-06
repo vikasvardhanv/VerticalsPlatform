@@ -4,7 +4,7 @@
 
 Your clinical staff spends **3-5 hours daily** on administrative tasks that don't help patients:
 
-- ⏰ **Prior authorizations**: 2-7 days waiting for insurance approvals
+- ⏰  **Prior authorizations**: 2-7 days waiting for insurance approvals
 - 📋 **Intake forms**: 15-20 minutes per patient manually entering data
 - 📞 **Appointment scheduling**: Constant phone tag and double-bookings
 - 💊 **Prescription processing**: Manual drug interaction checks, formulary lookups
