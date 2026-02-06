@@ -2,11 +2,16 @@ const { Pool } = require('pg');
 
 class Database {
   constructor() {
+    const sslMode = (process.env.DATABASE_SSL || process.env.PGSSLMODE || '').toLowerCase();
+    const disableSsl = ['disable', 'disabled', 'false', '0', 'no'].includes(sslMode);
+    const forceSsl = ['require', 'true', '1', 'yes'].includes(sslMode);
+    const sslEnabled = disableSsl ? false : (forceSsl || process.env.NODE_ENV === 'production');
+
     this.pool = new Pool({
       connectionString: process.env.DATABASE_URL,
       min: parseInt(process.env.DATABASE_POOL_MIN) || 10,
       max: parseInt(process.env.DATABASE_POOL_MAX) || 50,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      ssl: sslEnabled ? { rejectUnauthorized: false } : false
     });
 
     this.pool.on('error', (err) => {
