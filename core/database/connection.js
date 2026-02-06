@@ -2,6 +2,19 @@ const { Pool } = require('pg');
 
 class Database {
   constructor() {
+    const redactUrl = (rawUrl) => {
+      if (!rawUrl) return 'missing';
+      try {
+        const parsed = new URL(rawUrl);
+        if (parsed.password) {
+          parsed.password = '****';
+        }
+        return parsed.toString();
+      } catch (error) {
+        return 'invalid';
+      }
+    };
+
     const sslMode = (process.env.DATABASE_SSL || process.env.PGSSLMODE || '').toLowerCase();
     const disableSsl = ['disable', 'disabled', 'false', '0', 'no'].includes(sslMode);
     const forceSsl = ['require', 'true', '1', 'yes'].includes(sslMode);
@@ -13,6 +26,15 @@ class Database {
       max: parseInt(process.env.DATABASE_POOL_MAX) || 50,
       ssl: sslEnabled ? { rejectUnauthorized: false } : false
     });
+
+    if (process.env.LOG_LEVEL === 'debug') {
+      console.log('DB init', {
+        url: redactUrl(process.env.DATABASE_URL),
+        sslMode: sslMode || 'default',
+        sslEnabled,
+        nodeEnv: process.env.NODE_ENV || 'development'
+      });
+    }
 
     this.pool.on('error', (err) => {
       console.error('Unexpected database error:', err);
@@ -48,7 +70,12 @@ class Database {
       console.log('✅ Database connected:', result.rows[0].time);
       return true;
     } catch (error) {
-      console.error('❌ Database connection failed:', error.message);
+      console.error('❌ Database connection failed:', {
+        message: error.message,
+        code: error.code,
+        detail: error.detail,
+        stack: process.env.LOG_LEVEL === 'debug' ? error.stack : undefined
+      });
       return false;
     }
   }
