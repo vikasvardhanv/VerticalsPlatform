@@ -46,6 +46,32 @@ const TENANT_CONFIG = {
     dlpStrictMode: false
   },
 
+  // Public demo domains
+  'tensorarena.org': {
+    id: 'healthcare',
+    name: 'TensorArena (Demo)',
+    vertical: 'healthcare',
+    features: ['hipaa', 'phi_detection', 'prior_auth', 'clinical_notes'],
+    compliance: ['HIPAA', 'HITECH'],
+    dlpStrictMode: false
+  },
+  'www.tensorarena.org': {
+    id: 'healthcare',
+    name: 'TensorArena (Demo)',
+    vertical: 'healthcare',
+    features: ['hipaa', 'phi_detection', 'prior_auth', 'clinical_notes'],
+    compliance: ['HIPAA', 'HITECH'],
+    dlpStrictMode: false
+  },
+  'a4gk0k84woggkw8w4swwk4ws.76.13.124.154.sslip.io': {
+    id: 'healthcare',
+    name: 'TensorArena (Demo)',
+    vertical: 'healthcare',
+    features: ['hipaa', 'phi_detection', 'prior_auth', 'clinical_notes'],
+    compliance: ['HIPAA', 'HITECH'],
+    dlpStrictMode: false
+  },
+
   // Development/testing domains
   'localhost:3000': {
     id: 'healthcare',
