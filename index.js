@@ -3,6 +3,7 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 
 const db = require('./core/database/connection');
 const { tenantMiddleware } = require('./core/middleware/tenant-isolation');
@@ -18,9 +19,10 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"]
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      scriptSrc: ["'self'", "https://cdn.tailwindcss.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"]
     }
   }
 }));
@@ -32,6 +34,23 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Landing pages (public, no tenant required)
+const landingRoot = path.join(__dirname, 'landing-pages');
+app.use('/assets', express.static(path.join(landingRoot, 'assets')));
+
+const landingRoutes = {
+  '/healthcare': 'healthcare/index.html',
+  '/finance': 'finance/index.html',
+  '/enterprise': 'enterprise/index.html',
+  '/legal': 'legal/index.html',
+  '/data': 'data/index.html'
+};
+
+app.get(Object.keys(landingRoutes), (req, res) => {
+  const filePath = landingRoutes[req.path];
+  return res.sendFile(path.join(landingRoot, filePath));
+});
 
 // Rate limiting
 const limiter = rateLimit({
