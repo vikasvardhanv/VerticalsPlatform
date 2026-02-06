@@ -1,0 +1,52 @@
+const { Pool } = require('pg');
+
+class Database {
+  constructor() {
+    this.pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      min: parseInt(process.env.DATABASE_POOL_MIN) || 10,
+      max: parseInt(process.env.DATABASE_POOL_MAX) || 50,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    });
+
+    this.pool.on('error', (err) => {
+      console.error('Unexpected database error:', err);
+    });
+  }
+
+  async query(text, params) {
+    const start = Date.now();
+    try {
+      const result = await this.pool.query(text, params);
+      const duration = Date.now() - start;
+      if (process.env.LOG_LEVEL === 'debug') {
+        console.log('Query executed', { duration, rows: result.rowCount });
+      }
+      return result;
+    } catch (error) {
+      console.error('Database query error:', error.message);
+      throw error;
+    }
+  }
+
+  async setTenantContext(tenantId) {
+    await this.query('SELECT set_tenant_context($1)', [tenantId]);
+  }
+
+  async close() {
+    await this.pool.end();
+  }
+
+  async testConnection() {
+    try {
+      const result = await this.query('SELECT NOW() as time');
+      console.log('✅ Database connected:', result.rows[0].time);
+      return true;
+    } catch (error) {
+      console.error('❌ Database connection failed:', error.message);
+      return false;
+    }
+  }
+}
+
+module.exports = new Database();
