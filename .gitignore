@@ -4,6 +4,8 @@ node_modules/
 .env.production
 *.log
 npm-debug.log*
+*.md
+!README.md
 .DS_Store
 coverage/
 .vscode/
