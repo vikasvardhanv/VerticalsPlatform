@@ -11,6 +11,19 @@ async function request(method, endpoint, body = null) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  // Add vertical context for demonstration purposes
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    try {
+      const user = JSON.parse(storedUser);
+      if (user.vertical) {
+        headers['X-Vertical'] = user.vertical;
+      }
+    } catch (e) {
+      console.error('Failed to parse user from localStorage');
+    }
+  }
+
   const options = {
     method,
     headers

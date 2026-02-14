@@ -97,14 +97,19 @@ app.use((req, res, next) => {
   req.dlp = dlp;
   req.audit = audit;
   req.db = db;
-  // Add default tenant for development (FINANCE tenant for testing)
+
+  // Dynamic vertical for demonstration (defaults to finance)
+  const vertical = req.header('X-Vertical') || 'finance';
+  const tenantName = vertical === 'healthcare' ? 'MediGuard AI' : 'FinSecure AI';
+
+  // Add default tenant for development (dynamic vertical for testing)
   req.tenantId = '00000000-0000-0000-0000-000000000002';
   req.tenant = {
     id: '00000000-0000-0000-0000-000000000002',
-    name: 'FinSecure AI',
-    vertical: 'finance',
-    features: ['pci_redaction', 'sox_compliance'],
-    compliance: ['SOX', 'PCI-DSS'],
+    name: tenantName,
+    vertical: vertical,
+    features: ['pci_redaction', 'sox_compliance', 'phi_detection', 'hipaa'],
+    compliance: ['SOX', 'PCI-DSS', 'HIPAA'],
     dlpStrictMode: false  // Relaxed for development
   };
   next();
