@@ -11,11 +11,17 @@ const fs = require('fs');
 const crypto = require('crypto');
 
 // Configure multer for file uploads
-const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads');
+// Configure multer for file uploads
+const isVercel = process.env.VERCEL === '1';
+const UPLOAD_DIR = process.env.UPLOAD_DIR || (isVercel ? '/tmp/uploads' : path.join(__dirname, '../../uploads'));
 
 // Ensure upload directory exists
-if (!fs.existsSync(UPLOAD_DIR)) {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+try {
+    if (!fs.existsSync(UPLOAD_DIR)) {
+        fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    }
+} catch (err) {
+    console.warn('Failed to create upload directory:', err.message);
 }
 
 const storage = multer.diskStorage({
