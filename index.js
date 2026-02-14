@@ -98,20 +98,27 @@ app.use((req, res, next) => {
   req.audit = audit;
   req.db = db;
 
-  // Dynamic vertical for demonstration (defaults to finance)
-  const vertical = req.header('X-Vertical') || 'finance';
-  const tenantName = vertical === 'healthcare' ? 'MediGuard AI' : 'FinSecure AI';
+  // Dynamic vertical override via header (demo functionality)
+  const verticalOverride = req.header('X-Vertical');
 
-  // Add default tenant for development (dynamic vertical for testing)
-  req.tenantId = '00000000-0000-0000-0000-000000000002';
-  req.tenant = {
-    id: '00000000-0000-0000-0000-000000000002',
-    name: tenantName,
-    vertical: vertical,
-    features: ['pci_redaction', 'sox_compliance', 'phi_detection', 'hipaa'],
-    compliance: ['SOX', 'PCI-DSS', 'HIPAA'],
-    dlpStrictMode: false  // Relaxed for development
-  };
+  if (verticalOverride && req.tenant) {
+    req.tenant.vertical = verticalOverride;
+    req.tenant.name = verticalOverride === 'healthcare' ? 'MediGuard AI' : 'FinSecure AI';
+    // Ensure all demo features are enabled when switching
+    req.tenant.features = ['pci_redaction', 'sox_compliance', 'phi_detection', 'hipaa'];
+  } else if (!req.tenant) {
+    // Fallback for development if tenantMiddleware didn't pick up a host
+    const vertical = verticalOverride || 'finance';
+    req.tenantId = '00000000-0000-0000-0000-000000000002';
+    req.tenant = {
+      id: '00000000-0000-0000-0000-000000000002',
+      name: vertical === 'healthcare' ? 'MediGuard AI' : 'FinSecure AI',
+      vertical: vertical,
+      features: ['pci_redaction', 'sox_compliance', 'phi_detection', 'hipaa'],
+      compliance: ['SOX', 'PCI-DSS', 'HIPAA'],
+      dlpStrictMode: false
+    };
+  }
   next();
 });
 

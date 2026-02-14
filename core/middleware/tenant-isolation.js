@@ -71,6 +71,14 @@ const TENANT_CONFIG = {
     compliance: ['HIPAA', 'HITECH'],
     dlpStrictMode: false
   },
+  'verticals-platform.vercel.app': {
+    id: '00000000-0000-0000-0000-000000000002',
+    name: 'Multi-Vertical Platform (Demo)',
+    vertical: 'finance',
+    features: ['pci_redaction', 'sox_compliance', 'phi_detection', 'hipaa'],
+    compliance: ['SOX', 'PCI-DSS', 'HIPAA'],
+    dlpStrictMode: false
+  },
 
   // Development/testing domains
   'localhost:3000': {
