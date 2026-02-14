@@ -203,4 +203,9 @@ async function start() {
   }
 }
 
-start();
+// Export app for serverless use
+module.exports = app;
+
+if (require.main === module) {
+  start();
+}
