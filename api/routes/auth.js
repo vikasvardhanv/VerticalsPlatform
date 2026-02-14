@@ -19,6 +19,19 @@ const JWT_EXPIRY = '15m';
 const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 /**
+ * GET /api/v1/auth/register
+ * Verification endpoint for registration route
+ */
+router.get('/register', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Registration endpoint is active. please use POST to create an account.',
+        tenant: req.tenant?.name,
+        vertical: req.tenant?.vertical
+    });
+});
+
+/**
  * POST /api/v1/auth/register
  * Register a new user
  */
