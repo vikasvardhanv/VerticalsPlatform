@@ -14,7 +14,7 @@ build/
 *secret*
 *credential*
 credentials.json
-account.jsondont 
+account.json
 
 # Logs
 *.log
@@ -33,5 +33,5 @@ yarn-error.log*
 uploads/
 coverage/
 
-# Documentation (User requested to only push code)
+# Documentation
 *.md
