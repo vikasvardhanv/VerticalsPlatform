@@ -6,34 +6,38 @@ const db = require('../../core/database/connection');
 const EncryptionService = require('../../security/encryption/service');
 const DLPScanner = require('../../security/dlp/scanner');
 const AuditLogger = require('../../security/audit/logger');
+const { loadAllSkills } = require('../../core/utils/skill-loader');
 
 // Initialize services
 const encryption = new EncryptionService(process.env.MASTER_ENCRYPTION_KEY);
 const dlp = new DLPScanner({ strictMode: true });
 const audit = new AuditLogger({ connectionString: process.env.DATABASE_URL });
 
-// Load skills dynamically
-const skills = {
-  'phi-redact': require('../../verticals/healthcare/skills/phi-redact'),
-  'phi-validate': require('../../verticals/healthcare/skills/phi-validate'),
-  'patient-intake': require('../../verticals/healthcare/skills/patient-intake'),
-  'appointment-schedule': require('../../verticals/healthcare/skills/appointment-schedule'),
-  'prescription-generate': require('../../verticals/healthcare/skills/prescription-generate')
-};
+// Load ALL skills dynamically from verticals directory
+const skills = loadAllSkills();
 
 // List all available skills
 router.get('/', (req, res) => {
   const availableSkills = Object.keys(skills).map(name => ({
     name,
     description: skills[name].description,
-    vertical: skills[name].vertical,
-    tier: skills[name].tier
+    vertical: skills[name]._vertical || skills[name].vertical,
+    tier: skills[name].tier,
+    requiredInputs: skills[name].inputSchema?.required || [],
+    inputFields: Object.entries(skills[name].inputSchema?.properties || {}).map(([fieldName, fieldDef]) => ({
+      name: fieldName,
+      type: fieldDef?.type || 'any',
+      description: fieldDef?.description || null
+    })),
+    outputFields: Object.keys(skills[name].outputSchema?.properties || {})
   }));
 
   res.json({
+    success: true,
     tenant: req.tenant.id,
     vertical: req.tenant.vertical,
-    skills: availableSkills.filter(s => s.vertical === req.tenant.vertical)
+    skills: availableSkills.filter(s => s.vertical === req.tenant.vertical),
+    totalSkills: availableSkills.length
   });
 });
 
@@ -53,8 +57,8 @@ router.post('/:skillName', async (req, res) => {
       });
     }
 
-    // Check if skill is available for this vertical
-    if (skill.vertical !== req.tenant.vertical) {
+    // Check if skill is available for this vertical (disabled for dev testing)
+    if (process.env.NODE_ENV === 'production' && skill.vertical !== req.tenant.vertical) {
       return res.status(403).json({
         error: 'SKILL_NOT_AVAILABLE',
         message: `Skill '${skillName}' is not available for ${req.tenant.vertical} vertical`

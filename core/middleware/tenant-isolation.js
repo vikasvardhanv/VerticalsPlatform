@@ -6,7 +6,7 @@
 // Tenant configuration mapping domains to verticals
 const TENANT_CONFIG = {
   'mediguard-ai.com': {
-    id: 'healthcare',
+    id: '00000000-0000-0000-0000-000000000001',
     name: 'MediGuard AI',
     vertical: 'healthcare',
     features: ['hipaa', 'phi_detection', 'prior_auth', 'clinical_notes'],
@@ -14,7 +14,7 @@ const TENANT_CONFIG = {
     dlpStrictMode: true
   },
   'finsecure-ai.com': {
-    id: 'finance',
+    id: '00000000-0000-0000-0000-000000000002',
     name: 'FinSecure AI',
     vertical: 'finance',
     features: ['pci', 'audit_trail', 'tax_automation', 'fraud_detection'],
@@ -22,7 +22,7 @@ const TENANT_CONFIG = {
     dlpStrictMode: true
   },
   'devshield-ai.com': {
-    id: 'enterprise',
+    id: '00000000-0000-0000-0000-000000000003',
     name: 'DevShield AI',
     vertical: 'enterprise',
     features: ['sso', 'ldap', 'code_review', 'incident_management'],
@@ -30,7 +30,7 @@ const TENANT_CONFIG = {
     dlpStrictMode: false
   },
   'legalvault-ai.com': {
-    id: 'legal',
+    id: '00000000-0000-0000-0000-000000000004',
     name: 'LegalVault AI',
     vertical: 'legal',
     features: ['privilege', 'retention', 'ediscovery', 'contract_analysis'],
@@ -38,7 +38,7 @@ const TENANT_CONFIG = {
     dlpStrictMode: true
   },
   'dataforge-ai.com': {
-    id: 'data',
+    id: '00000000-0000-0000-0000-000000000005',
     name: 'DataForge AI',
     vertical: 'data',
     features: ['bigquery', 'snowflake', 'databricks', 'query_optimization'],
@@ -48,7 +48,7 @@ const TENANT_CONFIG = {
 
   // Public demo domains
   'tensorarena.org': {
-    id: 'healthcare',
+    id: '00000000-0000-0000-0000-000000000001',
     name: 'TensorArena (Demo)',
     vertical: 'healthcare',
     features: ['hipaa', 'phi_detection', 'prior_auth', 'clinical_notes'],
@@ -56,7 +56,7 @@ const TENANT_CONFIG = {
     dlpStrictMode: false
   },
   'www.tensorarena.org': {
-    id: 'healthcare',
+    id: '00000000-0000-0000-0000-000000000001',
     name: 'TensorArena (Demo)',
     vertical: 'healthcare',
     features: ['hipaa', 'phi_detection', 'prior_auth', 'clinical_notes'],
@@ -64,7 +64,7 @@ const TENANT_CONFIG = {
     dlpStrictMode: false
   },
   'a4gk0k84woggkw8w4swwk4ws.76.13.124.154.sslip.io': {
-    id: 'healthcare',
+    id: '00000000-0000-0000-0000-000000000001',
     name: 'TensorArena (Demo)',
     vertical: 'healthcare',
     features: ['hipaa', 'phi_detection', 'prior_auth', 'clinical_notes'],
@@ -74,7 +74,7 @@ const TENANT_CONFIG = {
 
   // Development/testing domains
   'localhost:3000': {
-    id: 'healthcare',
+    id: '00000000-0000-0000-0000-000000000001',
     name: 'MediGuard AI (Dev)',
     vertical: 'healthcare',
     features: ['hipaa', 'phi_detection'],
@@ -82,7 +82,7 @@ const TENANT_CONFIG = {
     dlpStrictMode: false
   },
   'localhost:8000': {
-    id: 'healthcare',
+    id: '00000000-0000-0000-0000-000000000001',
     name: 'MediGuard AI (Dev)',
     vertical: 'healthcare',
     features: ['hipaa', 'phi_detection'],
@@ -121,6 +121,7 @@ function tenantMiddleware(req, res, next) {
     }
 
     // Add tenant context to request
+    req.tenantId = tenantConfig.id;
     req.tenant = {
       id: tenantConfig.id,
       name: tenantConfig.name,

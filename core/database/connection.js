@@ -24,7 +24,11 @@ class Database {
       connectionString: process.env.DATABASE_URL,
       min: parseInt(process.env.DATABASE_POOL_MIN) || 10,
       max: parseInt(process.env.DATABASE_POOL_MAX) || 50,
-      ssl: sslEnabled ? { rejectUnauthorized: false } : false
+      ssl: sslEnabled ? { rejectUnauthorized: false } : false,
+      connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT) || 10000,  // 10s default
+      idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT) || 30000,              // 30s default
+      query_timeout: parseInt(process.env.DB_QUERY_TIMEOUT) || 15000,                 // 15s default
+      statement_timeout: parseInt(process.env.DB_STATEMENT_TIMEOUT) || 15000          // 15s default
     });
 
     if (process.env.LOG_LEVEL === 'debug') {

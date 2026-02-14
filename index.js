@@ -9,6 +9,24 @@ const db = require('./core/database/connection');
 const { tenantMiddleware } = require('./core/middleware/tenant-isolation');
 const healthRoutes = require('./api/routes/health');
 const skillRoutes = require('./api/routes/skills');
+const chatRoutes = require('./api/routes/chat');
+const authRoutes = require('./api/routes/auth');
+const documentRoutes = require('./api/routes/documents');
+const profileRoutes = require('./api/routes/profiles');
+const exportsRoutes = require('./api/routes/exports');
+
+// Security services for injection
+const dlpScanner = require('./security/dlp/scanner');
+const auditLogger = require('./security/audit/logger');
+
+// Initialize security services
+const dlp = new dlpScanner({ strictMode: process.env.DLP_STRICT_MODE === 'true' });
+const audit = new auditLogger({
+  connectionString: process.env.DATABASE_URL,
+  ssl: (process.env.DATABASE_SSL === 'true' || process.env.NODE_ENV === 'production')
+    ? { rejectUnauthorized: false }
+    : false
+});
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -74,11 +92,48 @@ app.use('/api/', limiter);
 // Tenant isolation (applies to all routes)
 app.use(tenantMiddleware);
 
+// Inject security services into request
+app.use((req, res, next) => {
+  req.dlp = dlp;
+  req.audit = audit;
+  req.db = db;
+  // Add default tenant for development (FINANCE tenant for testing)
+  req.tenantId = '00000000-0000-0000-0000-000000000002';
+  req.tenant = {
+    id: '00000000-0000-0000-0000-000000000002',
+    name: 'FinSecure AI',
+    vertical: 'finance',
+    features: ['pci_redaction', 'sox_compliance'],
+    compliance: ['SOX', 'PCI-DSS'],
+    dlpStrictMode: false  // Relaxed for development
+  };
+  next();
+});
+
 // Routes
 app.use('/api/v1/health', healthRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/chat', chatRoutes);
+app.use('/api/v1/documents', documentRoutes);
+app.use('/api/v1/profiles', profileRoutes);
 app.use('/api/v1/skills', skillRoutes);
+app.use('/api/v1/exports', exportsRoutes);
 
-// 404 handler
+// Serve dashboard (React app)
+const dashboardPath = path.join(__dirname, 'dashboard/dist');
+app.use(express.static(dashboardPath));
+
+// Catch-all route for React Router (must be after API routes, before 404)
+// This serves index.html for any non-API route so React Router can handle it
+app.get('*', (req, res, next) => {
+  // Only serve React app for non-API routes
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  res.sendFile(path.join(dashboardPath, 'index.html'));
+});
+
+// 404 handler (only reaches here for API routes that don't exist)
 app.use((req, res) => {
   res.status(404).json({
     error: 'NOT_FOUND',

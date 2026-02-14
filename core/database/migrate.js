@@ -1,3 +1,4 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const db = require('./connection');
@@ -14,7 +15,7 @@ async function runMigrations() {
     console.log('✅ Migrations completed successfully');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Migration failed:', error.message);
+    console.error('❌ Migration failed:', error);
     process.exit(1);
   }
 }
