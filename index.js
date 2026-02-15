@@ -131,8 +131,8 @@ app.use('/api/v1/profiles', profileRoutes);
 app.use('/api/v1/skills', skillRoutes);
 app.use('/api/v1/exports', exportsRoutes);
 
-// Serve dashboard (React app)
-const dashboardPath = path.join(__dirname, 'dashboard/dist');
+// Serve dashboard (React app) - Served from root public folder in production
+const dashboardPath = path.resolve(process.cwd(), 'public');
 app.use(express.static(dashboardPath));
 
 // Catch-all route for React Router (must be after API routes, before 404)
