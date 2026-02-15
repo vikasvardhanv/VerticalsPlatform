@@ -89,6 +89,20 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+// Debug route for Vercel paths
+app.get('/api/v1/debug-path', (req, res) => {
+  const paths = [
+    { label: 'cwd', path: process.cwd() },
+    { label: 'dirname', path: __dirname },
+    { label: 'publicExists', path: fs.existsSync(path.join(process.cwd(), 'public')) },
+    { label: 'publicFilesDist', path: fs.existsSync(path.join(__dirname, 'public')) ? fs.readdirSync(path.join(__dirname, 'public')) : 'not found' },
+    { label: 'distExists', path: fs.existsSync(path.join(__dirname, 'dashboard/dist')) },
+    { label: 'rootContents', path: fs.readdirSync(process.cwd()) },
+    { label: 'dirnameContents', path: fs.readdirSync(__dirname) }
+  ];
+  res.json({ success: true, paths });
+});
+
 // Tenant isolation (applies to all routes)
 app.use(tenantMiddleware);
 
@@ -97,20 +111,6 @@ app.use((req, res, next) => {
   req.dlp = dlp;
   req.audit = audit;
   req.db = db;
-
-  // Debug route for Vercel paths
-  app.get('/api/v1/debug-path', (req, res) => {
-    const paths = [
-      { label: 'cwd', path: process.cwd() },
-      { label: 'dirname', path: __dirname },
-      { label: 'publicExists', path: fs.existsSync(path.join(process.cwd(), 'public')) },
-      { label: 'publicFilesDist', path: fs.existsSync(path.join(__dirname, 'public')) ? fs.readdirSync(path.join(__dirname, 'public')) : 'not found' },
-      { label: 'distExists', path: fs.existsSync(path.join(__dirname, 'dashboard/dist')) },
-      { label: 'rootContents', path: fs.readdirSync(process.cwd()) },
-      { label: 'dirnameContents', path: fs.readdirSync(__dirname) }
-    ];
-    res.json({ success: true, paths });
-  });
 
   // Dynamic vertical override via header (demo functionality)
   const verticalOverride = req.header('X-Vertical');
