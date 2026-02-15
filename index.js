@@ -95,11 +95,10 @@ app.get('/api/v1/debug-path', (req, res) => {
   const paths = [
     { label: 'cwd', path: process.cwd() },
     { label: 'dirname', path: __dirname },
-    { label: 'publicExists', path: fs.existsSync(path.join(process.cwd(), 'public')) },
-    { label: 'publicFilesDist', path: fs.existsSync(path.join(__dirname, 'public')) ? fs.readdirSync(path.join(__dirname, 'public')) : 'not found' },
-    { label: 'distExists', path: fs.existsSync(path.join(__dirname, 'dashboard/dist')) },
     { label: 'rootContents', path: fs.readdirSync(process.cwd()) },
-    { label: 'dirnameContents', path: fs.readdirSync(__dirname) }
+    { label: 'dashboardContents', path: fs.existsSync(path.join(process.cwd(), 'dashboard')) ? fs.readdirSync(path.join(process.cwd(), 'dashboard')) : 'not found' },
+    { label: 'uiDistExists', path: fs.existsSync(path.join(process.cwd(), 'ui-dist')) },
+    { label: 'uiDistFiles', path: fs.existsSync(path.join(process.cwd(), 'ui-dist')) ? fs.readdirSync(path.join(process.cwd(), 'ui-dist')) : 'not found' }
   ];
   res.json({ success: true, paths });
 });
@@ -146,8 +145,8 @@ app.use('/api/v1/profiles', profileRoutes);
 app.use('/api/v1/skills', skillRoutes);
 app.use('/api/v1/exports', exportsRoutes);
 
-// Serve dashboard (React app) - Served from root public folder in production
-const dashboardPath = path.join(__dirname, 'public');
+// Serve dashboard (React app) - Served from ui-dist folder
+const dashboardPath = path.join(process.cwd(), 'ui-dist');
 app.use(express.static(dashboardPath));
 
 // Catch-all route for React Router (must be after API routes, before 404)
