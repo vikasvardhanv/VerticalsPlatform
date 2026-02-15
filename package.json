@@ -10,6 +10,7 @@
     "test:watch": "jest --watch",
     "security:scan": "snyk test && npm audit",
     "build": "cd dashboard && npm install && npm run build && cd .. && rm -rf ui-dist && mv dashboard/dist ./ui-dist",
+    "vercel-build": "cd dashboard && npm install && npm run build && cd .. && rm -rf ui-dist && mv dashboard/dist ./ui-dist",
     "build:dashboard": "cd dashboard && npm install && npm run build && cd .. && rm -rf ui-dist && mv dashboard/dist ./ui-dist",
     "dev:dashboard": "cd dashboard && npm run dev",
     "migrate": "node core/database/migrate.js",

@@ -96,9 +96,12 @@ app.get('/api/v1/debug-path', (req, res) => {
     { label: 'cwd', path: process.cwd() },
     { label: 'dirname', path: __dirname },
     { label: 'rootContents', path: fs.readdirSync(process.cwd()) },
-    { label: 'dashboardContents', path: fs.existsSync(path.join(process.cwd(), 'dashboard')) ? fs.readdirSync(path.join(process.cwd(), 'dashboard')) : 'not found' },
+    { label: 'dashboardExists', path: fs.existsSync(path.join(process.cwd(), 'dashboard')) },
+    { label: 'dashboardContents', path: fs.existsSync(path.join(process.cwd(), 'dashboard')) ? fs.readdirSync(path.join(process.cwd(), 'dashboard')) : 'null' },
+    { label: 'dashboardDistExists', path: fs.existsSync(path.join(process.cwd(), 'dashboard/dist')) },
+    { label: 'dashboardDistContents', path: fs.existsSync(path.join(process.cwd(), 'dashboard/dist')) ? fs.readdirSync(path.join(process.cwd(), 'dashboard/dist')) : 'null' },
     { label: 'uiDistExists', path: fs.existsSync(path.join(process.cwd(), 'ui-dist')) },
-    { label: 'uiDistFiles', path: fs.existsSync(path.join(process.cwd(), 'ui-dist')) ? fs.readdirSync(path.join(process.cwd(), 'ui-dist')) : 'not found' }
+    { label: 'uiDistContents', path: fs.existsSync(path.join(process.cwd(), 'ui-dist')) ? fs.readdirSync(path.join(process.cwd(), 'ui-dist')) : 'null' }
   ];
   res.json({ success: true, paths });
 });
