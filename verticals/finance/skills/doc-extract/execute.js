@@ -161,12 +161,21 @@ async function extractWithAI(anthropic, document) {
   const filePath = document.file_path;
 
   // Check if file exists
-  const fullPath = path.join(process.cwd(), 'platform', filePath);
+  let fullPath = filePath;
+  if (!path.isAbsolute(filePath)) {
+    // If relative, assume it's relative to the platform root
+    fullPath = path.join(process.cwd(), 'platform', filePath);
+
+    // Fallback: check if it's relative to cwd directly
+    if (!require('fs').existsSync(fullPath)) {
+      fullPath = path.join(process.cwd(), filePath);
+    }
+  }
 
   try {
     await fs.access(fullPath);
   } catch (error) {
-    throw new Error(`File not found: ${filePath}`);
+    throw new Error(`File not found: ${filePath} (resolved to: ${fullPath})`);
   }
 
   // Read file and convert to base64

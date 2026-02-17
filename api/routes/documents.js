@@ -480,7 +480,7 @@ router.post('/:id/process', async (req, res) => {
         const { id } = req.params;
         const tenantId = req.tenantId;
 
-        // Get document from database
+        // Check if document exists
         const docResult = await req.db.query(`
             SELECT id, file_path, document_type as "documentType", profile_name as "profileName"
             FROM documents
@@ -496,30 +496,20 @@ router.post('/:id/process', async (req, res) => {
 
         const document = docResult.rows[0];
 
-        // Read document content
-        const content = fs.readFileSync(document.file_path);
-        const base64 = content.toString('base64');
-
-        // Import and execute doc-extract skill
+        // Execute doc-extract skill
         const { executeSkill } = require('../services/tool-executor');
 
+        // Pass document_ids which is what the skill expects
         const result = await executeSkill('doc-extract', {
-            document_content: base64,
-            document_type: document.documentType || 'auto',
+            document_ids: [id],
             tenant_id: tenantId
         }, {
             tenantId,
+            vertical: req.tenant?.vertical || 'finance',
             dlp: req.dlp,
             audit: req.audit,
             db: req.db
         });
-
-        // Update document with extracted data in database
-        await req.db.query(`
-            UPDATE documents
-            SET status = $1, extracted_data = $2, processed_at = NOW()
-            WHERE id = $3
-        `, ['processed', JSON.stringify(result.extracted_data || result), id]);
 
         res.json({
             success: true,
